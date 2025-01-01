@@ -1,0 +1,128 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Window = Rayfield:CreateWindow({
+   Name = "Gio's Hub",
+   Icon = 0, -- No icon
+   LoadingTitle = "Rayfield Interface Suite",
+   LoadingSubtitle = "by Sirius",
+   Theme = "Default",
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false,
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil,
+      FileName = "GiosHub"
+   },
+   Discord = {
+      Enabled = false,
+      Invite = "noinvitelink",
+      RememberJoins = true
+   },
+   KeySystem = false,
+   KeySettings = {
+      Title = "Untitled",
+      Subtitle = "Key System",
+      Note = "No method of obtaining the key is provided",
+      FileName = "Key",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"Hello"}
+   }
+})
+
+local Tab = Window:CreateTab("Gio's Hub", 0) -- Title, Image
+local Toggle = Tab:CreateToggle({
+   Name = "Rod Equip Toggle",
+   CurrentValue = false,
+   Flag = "Toggle1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+      -- The function that takes place when the toggle is pressed
+      -- The variable (Value) is a boolean on whether the toggle is true or false
+      local player = game.Players.LocalPlayer  -- Get the local player
+      local inventory = player.Backpack:GetChildren()  -- Get all items in the player's backpack
+      local character = player.Character or player.CharacterAdded:Wait()  -- Get the player's character
+
+      -- Function to check if the item name contains 'rod' and equip it if found
+      local function equipRod()
+         for _, item in pairs(inventory) do
+            if string.lower(item.Name):find("rod") then
+               -- Equip the item (assuming the item is a tool)
+               item.Parent = character  -- Move the item from the backpack to the character to equip it
+               return item  -- Return the item that was equipped
+            end
+         end
+         return nil  -- No item with "rod" found
+      end
+
+      -- Function to show a message if no rod is found
+      local function showMessage(message)
+         local textLabel = Instance.new("TextLabel")
+         textLabel.Parent = player.PlayerGui  -- Display on player's screen
+         textLabel.Text = message
+         textLabel.Size = UDim2.new(0, 200, 0, 50)
+         textLabel.Position = UDim2.new(0.5, -100, 0.5, -25)
+         textLabel.TextColor3 = Color3.fromRGB(255, 0, 0)  -- Red color
+         textLabel.BackgroundTransparency = 1  -- Transparent background
+         textLabel.TextScaled = true  -- Scale text to fit the label
+         wait(3)  -- Wait for 3 seconds to show the message
+         textLabel:Destroy()  -- Remove the message
+      end
+
+      -- Function to simulate holding and swinging the rod
+      local function swingRod(rod)
+         -- Simulate holding the mouse button to swing the rod
+         if rod then
+            -- Check if the player is using a mouse or mobile
+            if game:GetService("UserInputService"):TouchEnabled then
+                -- Mobile: simulate touch hold on the screen (replace with actual input simulation if needed)
+                print("Mobile device detected. Simulating touch hold to swing the rod.")
+                local touchInput = Instance.new("InputObject")
+                touchInput.UserInputType = Enum.UserInputType.Touch
+                -- Simulate touch to hold it for swinging
+                game:GetService("UserInputService").InputChanged:Fire(touchInput)  -- Fire touch event
+            else
+                -- PC: simulate holding the left mouse button to swing
+                print("PC detected. Simulating mouse hold to swing the rod.")
+                local mouse = player:GetMouse()  -- Get the player's mouse
+                mouse.Button1Down:Connect(function()  -- Simulate holding MouseButton1
+                    -- While holding MouseButton1, continue swinging the rod
+                    while mouse:IsButtonPressed(Enum.UserInputType.MouseButton1) do
+                        -- Simulate swinging the rod, e.g., triggering animations or effects
+                        print("Swinging the rod with mouse button held.")
+                        wait(0.1)  -- Simulate the frequency of swings while holding the button
+                    end
+                end)
+            end
+         end
+      end
+
+      -- Function to check if "Shake" exists on the screen and press it
+      local function checkAndPressShake()
+         while true do
+            local shakeButton = player.PlayerGui:FindFirstChild("Shake")  -- Check if "Shake" exists in PlayerGui
+            if shakeButton then
+               print("Found Shake button, pressing it...")
+               -- Simulate pressing the "Shake" button
+               shakeButton.MouseButton1Click:Invoke()
+               break  -- Pressed the button, exit the loop
+            else
+               wait(1)  -- Wait 1 second and check again
+            end
+         end
+      end
+
+      -- Main logic when toggle is turned on
+      if Value then
+         local rod = equipRod()  -- Equip the rod if found
+         if rod then
+            -- Start swinging the rod automatically
+            spawn(function() swingRod(rod) end)
+            -- Check and press the "Shake" button when it appears
+            checkAndPressShake()
+         else
+            showMessage("No rod found in inventory.")  -- Show message if no rod found
+         end
+      else
+         print("Toggle is OFF")
+      end
+   end,
+})
